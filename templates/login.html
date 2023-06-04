@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>UniForMe</title>
+        <link rel="stylesheet" href="css/login.css" />
+        <script defer src="src/message.js" type="module"></script>
+        <script defer src="src/login.js"></script>
+        <script defer src="src/navbar.js"></script>
+    </head>
+    <body>
+        <div class="cont">
+            <div class="nav-bar">
+                <div class="home-nav">Home</div>
+                <div class="login-nav">Log in</div>
+                <div class="about-nav">About us</div>
+            </div>
+
+            <div class="top-cont">
+                <img src="images/logo.png" width="50%" />
+            </div>
+
+            <div class="bottom-cont">
+                <p>
+                    College admissions can sometimes be an entire course in and
+                    of itself. UniForMe is dedicated to making the college
+                    admissions process more efficient for all. After users
+                    select colleges that they are interested in, UniForMe 
+                    graphically displays information about the colleges
+                    on a number of criteria, making it easy for users to compare
+                    them against many factors and find the one for them.
+                </p>
+
+                <div class="auth-cont" style="display: none">
+                    <div class="login-cont">
+                        <label>Log into UniForMe</label>
+                        <input
+                            type="text"
+                            class="login-username"
+                            placeholder="Enter your username"
+                        />
+                        <input
+                            type="password"
+                            class="login-password"
+                            placeholder="Enter your password"
+                        />
+                        <button class="login-button">Log in</button>
+                    </div>
+
+                    <div class="signup-cont">
+                        <label>Sign up for UniForMe</label>
+                        <input
+                            type="text"
+                            class="signup-username"
+                            placeholder="Enter your username"
+                        />
+                        <input
+                            type="password"
+                            class="signup-password"
+                            placeholder="Create a password"
+                        />
+                        <button class="signup-button">Sign up</button>
+                    </div>
+                </div>
+
+                <div class="about-cont" style="display: none">
+                    <p>
+                        This project was initially made by Abu A, Abdullah Z, Rayyan M,
+                        and Julian B from the Bronx High School of Science as a
+                        submission for the 2023 Atomhacks hackathon. Further
+                        changes were made by Abu. Reach us at
+                        ahmeda10@bxscience.edu, zidana@bxscience.edu,
+                        mohammedr@bxscience.edu, or benellij@bxscience.edu!
+                    </p>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>

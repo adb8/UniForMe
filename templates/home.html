@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>UniForMe</title>
+        <link rel="stylesheet" href="css/login.css" />
+        <link rel="stylesheet" href="css/home.css" />
+        <script defer src="src/logout.js"></script>
+        <script defer src="src/search.js"></script>
+        <script defer src="src/graph.js"></script>
+    </head>
+    <body>
+        <div class="cont">
+            <div class="nav-bar">
+                <div class="logout-nav">Log out</div>
+            </div>
+
+            <div class="bottom-cont">
+                <div class="stat-cont">
+                    <button class="home">Home</button>
+                    <button class="sat">SAT</button>
+                    <button class="act">ACT</button>
+                    <button class="admission">Admission rate</button>
+                    <button class="graduation">Graduation rate</button>
+                    <button class="debt">Debt</button>
+                    <button class="tuition-out-state">Tuition (Out of state)</button>
+                    <button class="tuition-in-state">Tuition (In state)</button>
+                    <button class="earnings">Earnings</button>
+                    <button class="population">Population</button>
+                </div>
+
+                <div class="cont-cont">
+                    <div class="college-search-cont">
+                        <input
+                            type="text"
+                            class="college-search-input"
+                            placeholder="Search for a college"
+                        />
+                        <div class="btn-cont">
+                            <button class="college-save-button">Save</button>
+                            <button class="college-remove-button">Remove</button>
+                        </div>
+                    </div>
+
+                    <canvas
+                        id="stats-graph"
+                        style="
+                            width: 100%;
+                            height: 100%;
+                            max-width: 1000px;
+                            max-height: 600px;
+                            display: none;
+                        "
+                    >
+                    </canvas>
+                </div>
+            </div>
+        </div>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.9.4/Chart.js"></script>
+        <script src="src/message.js"></script>
+    </body>
+</html>
