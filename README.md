@@ -1,3 +1,3 @@
 # UniForMe2
 
-Select colleges you are interested and see the stats of those colleges graphed against each other
+Select colleges you are interested in and see their stats graphed against each other
