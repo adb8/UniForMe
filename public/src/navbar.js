@@ -10,13 +10,11 @@ login_nav.onclick = () => {
     p.style.display = "none";
     about_cont.style.display = "none";
 };
-
 home_nav.onclick = () => {
     auth_cont.style.display = "none";
     p.style.display = "block";
     about_cont.style.display = "none";
 };
-
 about_nav.onclick = () => {
     auth_cont.style.display = "none";
     p.style.display = "none";
