@@ -21,7 +21,7 @@ app.use(
 app.get("/", (req, res) => {
   if (req.session && req.session.username) {
     req.session.destroy((error) => {
-      if (error != undefined) {
+      if (error) {
         console.log("Error destroying session: " + error);
       }
     });
