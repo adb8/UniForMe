@@ -88,7 +88,6 @@ app.post("/login", async (req, res) => {
   const { username, password } = req.body;
   const user_path = "users/";
   const user_ref = firebase.ref(firebase.db, user_path);
-  console.log(username, password);
 
   firebase.onValue(
     user_ref,
@@ -96,7 +95,6 @@ app.post("/login", async (req, res) => {
       snapshot.forEach((childSnapshot) => {
         const db_username = childSnapshot.val().username;
         const db_password = childSnapshot.val().password;
-        console.log(db_username, db_password);
         if (username === db_username && password === db_password) {
           if (!response_sent) {
             req.session.username = username;
@@ -118,11 +116,6 @@ app.post("/login", async (req, res) => {
       onlyOnce: true,
     }
   );
-  if (!response_sent) {
-    console.log("Firebase error");
-    res.status(200).json(false);
-    response_sent = true;
-  }
 });
 
 app.post("/remove", async (req, res) => {
@@ -159,10 +152,6 @@ app.post("/remove", async (req, res) => {
       onlyOnce: true,
     }
   );
-  if (!response_sent) {
-    res.status(200).json(false);
-    response_sent = true;
-  }
 });
 
 app.post("/search", async (req, res) => {
@@ -219,10 +208,6 @@ app.post("/search", async (req, res) => {
         return;
       }
     });
-  if (!response_sent) {
-    res.status(200).json(false);
-    response_sent = true;
-  }
 });
 
 app.post("/data", async (req, res) => {
@@ -379,10 +364,6 @@ app.post("/data", async (req, res) => {
       onlyOnce: true,
     }
   );
-  if (!response_sent) {
-    res.status(200).json(false);
-    response_sent = true;
-  }
 });
 
 const port = 3000;
