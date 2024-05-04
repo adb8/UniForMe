@@ -16,7 +16,6 @@ login_button.onclick = () => {
       password: password ? password : "",
     };
 
-    console.log(login_data);
     fetch(`/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -36,6 +35,10 @@ login_button.onclick = () => {
       })
       .catch((error) => {
         console.log("Error:", error);
+      })
+      .catch((error) => {
+        console.log("Error:", error);
+        accepting_responses = true;
       });
   }
 };
@@ -66,6 +69,10 @@ signup_button.onclick = () => {
           signup_password.value = "";
           accepting_responses = true;
         }
+      })
+      .catch((error) => {
+        console.log("Error:", error);
+        accepting_responses = true;
       });
   }
 };

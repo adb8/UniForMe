@@ -22,23 +22,33 @@ app.use(
 );
 
 app.get("/", (req, res) => {
-  if (req.session && req.session.username) {
-    req.session.destroy((error) => {
-      if (error) {
-        console.log("Error destroying session: " + error);
-      }
-    });
+  try {
+    if (req.session && req.session.username) {
+      req.session.destroy((error) => {
+        if (error) {
+          console.log("Error destroying session: " + error);
+        }
+      });
+    }
+    const filePath = __dirname + "/../templates/login.html";
+    res.sendFile(path.resolve(filePath));
+  } catch (error) {
+    console.log("Error: " + error);
+    res.status(500).send("Internal Server Error");
   }
-  const filePath = __dirname + "/../templates/login.html";
-  res.sendFile(path.resolve(filePath));
 });
 
 app.get("/home", (req, res) => {
-  if (req.session.username != undefined) {
-    const filePath = __dirname + "/../templates/home.html";
-    res.sendFile(path.resolve(filePath));
-  } else {
-    res.redirect(path.resolve("/"));
+  try {
+    if (req.session.username) {
+      const filePath = __dirname + "/../templates/home.html";
+      res.sendFile(path.resolve(filePath));
+    } else {
+      res.redirect("/");
+    }
+  } catch (error) {
+    console.log("Error: " + error);
+    res.status(500).send("Internal Server Error");
   }
 });
 
@@ -48,38 +58,39 @@ app.post("/signup", async (req, res) => {
   const user_path = "users/";
   const user_ref = firebase.ref(firebase.db, user_path);
 
-  firebase.onValue(
-    user_ref,
-    (snapshot) => {
-      snapshot.forEach((childSnapshot) => {
-        const db_username = childSnapshot.val().username;
-        if (username == db_username) {
-          if (!response_sent) {
-            res.status(200).json(false);
-            response_sent = true;
-            return;
+  try {
+    firebase.onValue(
+      user_ref,
+      (snapshot) => {
+        snapshot.forEach((childSnapshot) => {
+          const db_username = childSnapshot.val().username;
+          if (username == db_username) {
+            if (!response_sent) {
+              res.status(200).json(false);
+              response_sent = true;
+              return;
+            }
           }
-        }
-      });
-      if (!response_sent) {
-        new_entry = firebase.push(user_ref, {
-          username: username,
-          password: password,
         });
-        req.session.key = new_entry.key;
-        req.session.username = username;
-        res.status(200).json(true);
-        response_sent = true;
-        return;
+        if (!response_sent) {
+          new_entry = firebase.push(user_ref, {
+            username: username,
+            password: password,
+          });
+          req.session.key = new_entry.key;
+          req.session.username = username;
+          res.status(200).json(true);
+          response_sent = true;
+          return;
+        }
+      },
+      {
+        onlyOnce: true,
       }
-    },
-    {
-      onlyOnce: true,
-    }
-  );
-  if (!response_sent) {
-    res.status(200).json(false);
-    response_sent = true;
+    );
+  } catch (error) {
+    console.log("Error: " + error);
+    res.status(500).send("Internal Server Error");
   }
 });
 
@@ -89,33 +100,38 @@ app.post("/login", async (req, res) => {
   const user_path = "users/";
   const user_ref = firebase.ref(firebase.db, user_path);
 
-  firebase.onValue(
-    user_ref,
-    (snapshot) => {
-      snapshot.forEach((childSnapshot) => {
-        const db_username = childSnapshot.val().username;
-        const db_password = childSnapshot.val().password;
-        if (username === db_username && password === db_password) {
-          if (!response_sent) {
-            req.session.username = username;
-            user_key = childSnapshot.key;
-            req.session.key = user_key;
-            res.status(200).json(true);
-            response_sent = true;
-            return;
+  try {
+    firebase.onValue(
+      user_ref,
+      (snapshot) => {
+        snapshot.forEach((childSnapshot) => {
+          const db_username = childSnapshot.val().username;
+          const db_password = childSnapshot.val().password;
+          if (username === db_username && password === db_password) {
+            if (!response_sent) {
+              req.session.username = username;
+              user_key = childSnapshot.key;
+              req.session.key = user_key;
+              res.status(200).json(true);
+              response_sent = true;
+              return;
+            }
           }
+        });
+        if (!response_sent) {
+          res.status(200).json(false);
+          response_sent = true;
+          return;
         }
-      });
-      if (!response_sent) {
-        res.status(200).json(false);
-        response_sent = true;
-        return;
+      },
+      {
+        onlyOnce: true,
       }
-    },
-    {
-      onlyOnce: true,
-    }
-  );
+    );
+  } catch (error) {
+    console.log("Error: " + error);
+    res.status(500).send("Internal Server Error");
+  }
 });
 
 app.post("/remove", async (req, res) => {
@@ -125,33 +141,43 @@ app.post("/remove", async (req, res) => {
   const college_path = `users/${user_key}/colleges`;
   const college_ref = firebase.ref(firebase.db, college_path);
 
-  firebase.onValue(
-    college_ref,
-    (snapshot) => {
-      snapshot.forEach((childSnapshot) => {
-        db_college_name = childSnapshot.val().name;
-        if (college_query.toLowerCase() === db_college_name.toLowerCase()) {
-          const college_key = childSnapshot.key;
-          const remove_path = `users/${req.session.key}/colleges/${college_key}`;
-          const remove_ref = firebase.ref(firebase.db, remove_path);
-          firebase.remove(remove_ref);
+  try {
+    firebase.onValue(
+      college_ref,
+      (snapshot) => {
+        try {
+          snapshot.forEach((childSnapshot) => {
+            db_college_name = childSnapshot.val().name;
+            if (college_query.toLowerCase() === db_college_name.toLowerCase()) {
+              const college_key = childSnapshot.key;
+              const remove_path = `users/${req.session.key}/colleges/${college_key}`;
+              const remove_ref = firebase.ref(firebase.db, remove_path);
+              firebase.remove(remove_ref);
+              if (!response_sent) {
+                res.status(200).json(true);
+                response_sent = true;
+                return;
+              }
+            }
+          });
           if (!response_sent) {
-            res.status(200).json(true);
+            res.status(200).json(false);
             response_sent = true;
             return;
           }
+        } catch (error) {
+          console.log("Error: " + error);
+          res.status(500).send("Internal Server Error");
         }
-      });
-      if (!response_sent) {
-        res.status(200).json(false);
-        response_sent = true;
-        return;
+      },
+      {
+        onlyOnce: true,
       }
-    },
-    {
-      onlyOnce: true,
-    }
-  );
+    );
+  } catch (error) {
+    console.log("Error: " + error);
+    res.status(500).send("Internal Server Error");
+  }
 });
 
 app.post("/search", async (req, res) => {
@@ -160,6 +186,7 @@ app.post("/search", async (req, res) => {
   const college_query_encoded = encodeURIComponent(college_query);
   const api_key = process.env.SCORECARD_API_KEY;
   const api_url = `https://api.data.gov/ed/collegescorecard/v1/schools.json?api_key=${api_key}&school.name=${college_query_encoded}`;
+  console.log(api_url);
 
   fetch(api_url)
     .then((response) => response.json())
@@ -207,6 +234,10 @@ app.post("/search", async (req, res) => {
         response_sent = true;
         return;
       }
+    })
+    .catch((error) => {
+      console.log("Error:", error);
+      res.status(500).send("Internal Server Error");
     });
 });
 
@@ -217,153 +248,173 @@ app.post("/data", async (req, res) => {
   const college_path = `users/${user_key}/colleges`;
   const college_ref = firebase.ref(firebase.db, college_path);
 
-  firebase.onValue(
-    college_ref,
-    (snapshot) => {
-      const x = [];
-      const y = [];
-      snapshot.forEach((childSnapshot) => {
-        db_college_name = childSnapshot.val().name;
-        x.push(db_college_name);
-      });
+  try {
+    firebase.onValue(
+      college_ref,
+      (snapshot) => {
+        const x = [];
+        const y = [];
+        snapshot.forEach((childSnapshot) => {
+          db_college_name = childSnapshot.val().name;
+          x.push(db_college_name);
+        });
 
-      fetch_data = async () => {
-        for (const db_college_name of x) {
-          const db_college_name_encoded = encodeURIComponent(db_college_name);
-          const api_key = process.env.SCORECARD_API_KEY;
-          const api_url = `https://api.data.gov/ed/collegescorecard/v1/schools.json?api_key=${api_key}&school.name=${db_college_name_encoded}`;
-          const response = await fetch(api_url);
-          const data = await response.json();
+        fetch_data = async () => {
+          for (const db_college_name of x) {
+            const db_college_name_encoded = encodeURIComponent(db_college_name);
+            const api_key = process.env.SCORECARD_API_KEY;
+            console.log(api_key);
+            const api_url = `https://api.data.gov/ed/collegescorecard/v1/schools.json?api_key=${api_key}&school.name=${db_college_name_encoded}`;
+            console.log(api_url);
+            const response = await fetch(api_url);
+            const data = await response.json();
 
-          data.results.forEach((result) => {
-            const api_college_name = result.latest.school.name;
-            if (api_college_name === db_college_name) {
+            data.results.forEach((result) => {
+              const api_college_name = result.latest.school.name;
+              if (api_college_name === db_college_name) {
+                switch (type) {
+                  case "sat":
+                    const sat_scores = result.latest.admissions.sat_scores.average.overall;
+                    if (sat_scores === null) {
+                      y.push(400);
+                    } else {
+                      y.push(sat_scores);
+                    }
+                    break;
+                  case "act":
+                    const act_scores = result.latest.admissions.act_scores.midpoint.cumulative;
+                    if (act_scores === null) {
+                      y.push(0);
+                    } else {
+                      y.push(act_scores);
+                    }
+                    break;
+                  case "admission":
+                    const admission_rate = result.latest.admissions.admission_rate.overall;
+                    if (admission_rate === null) {
+                      y.push(0);
+                    } else {
+                      y.push(admission_rate * 100);
+                    }
+                    break;
+                  case "graduation":
+                    const graduation_rate = result.latest.completion.consumer_rate;
+                    if (graduation_rate === null) {
+                      y.push(0);
+                    } else {
+                      y.push(graduation_rate * 100);
+                    }
+                    break;
+                  case "debt":
+                    const average_debt = result.latest.aid.median_debt.completers.overall;
+                    if (average_debt === null) {
+                      y.push(0);
+                    } else {
+                      y.push(average_debt);
+                    }
+                    break;
+                  case "tuition-in-state":
+                    const in_state_cost = result.latest.cost.tuition.in_state;
+                    if (in_state_cost === null) {
+                      y.push(0);
+                    } else {
+                      y.push(in_state_cost);
+                    }
+                    break;
+                  case "tuition-out-state":
+                    const out_of_state_cost = result.latest.cost.tuition.out_of_state;
+                    if (out_of_state_cost === null) {
+                      y.push(0);
+                    } else {
+                      y.push(out_of_state_cost);
+                    }
+                    break;
+                  case "earnings":
+                    const average_earnings = result.latest.earnings["10_yrs_after_entry"].median;
+                    if (average_earnings === null) {
+                      y.push(0);
+                    } else {
+                      y.push(average_earnings);
+                    }
+                    break;
+                  case "population":
+                    const population = result.latest.student.size;
+                    if (population === null) {
+                      y.push(0);
+                    } else {
+                      y.push(population);
+                    }
+                    break;
+                  default:
+                    break;
+                }
+              }
+            });
+          }
+        };
+
+        fetch_data()
+          .then(() => {
+            if (!response_sent) {
               switch (type) {
                 case "sat":
-                  const sat_scores = result.latest.admissions.sat_scores.average.overall;
-                  if (sat_scores === null) {
-                    y.push(400);
-                  } else {
-                    y.push(sat_scores);
-                  }
+                  y.push(400, 1600);
                   break;
                 case "act":
-                  const act_scores = result.latest.admissions.act_scores.midpoint.cumulative;
-                  if (act_scores === null) {
-                    y.push(0);
-                  } else {
-                    y.push(act_scores);
-                  }
+                  y.push(0, 36);
                   break;
                 case "admission":
-                  const admission_rate = result.latest.admissions.admission_rate.overall;
-                  if (admission_rate === null) {
-                    y.push(0);
-                  } else {
-                    y.push(admission_rate * 100);
-                  }
+                  y.push(0, 100);
                   break;
                 case "graduation":
-                  const graduation_rate = result.latest.completion.consumer_rate;
-                  if (graduation_rate === null) {
-                    y.push(0);
-                  } else {
-                    y.push(graduation_rate * 100);
-                  }
+                  y.push(0, 100);
                   break;
                 case "debt":
-                  const average_debt = result.latest.aid.median_debt.completers.overall;
-                  if (average_debt === null) {
-                    y.push(0);
-                  } else {
-                    y.push(average_debt);
-                  }
+                  y.push(0);
                   break;
                 case "tuition-in-state":
-                  const in_state_cost = result.latest.cost.tuition.in_state;
-                  if (in_state_cost === null) {
-                    y.push(0);
-                  } else {
-                    y.push(in_state_cost);
-                  }
+                  y.push(0);
                   break;
                 case "tuition-out-state":
-                  const out_of_state_cost = result.latest.cost.tuition.out_of_state;
-                  if (out_of_state_cost === null) {
-                    y.push(0);
-                  } else {
-                    y.push(out_of_state_cost);
-                  }
+                  y.push(0);
                   break;
                 case "earnings":
-                  const average_earnings = result.latest.earnings["10_yrs_after_entry"].median;
-                  if (average_earnings === null) {
-                    y.push(0);
-                  } else {
-                    y.push(average_earnings);
-                  }
+                  y.push(0);
                   break;
                 case "population":
-                  const population = result.latest.student.size;
-                  if (population === null) {
-                    y.push(0);
-                  } else {
-                    y.push(population);
-                  }
+                  y.push(0);
                   break;
                 default:
                   break;
               }
+              res.status(200).json({
+                x: x,
+                y: y,
+              });
+              response_sent = true;
             }
+          })
+          .catch((error) => {
+            console.log("Error:", error);
+            res.status(500).send("Internal Server Error");
           });
-        }
-      };
+      },
+      {
+        onlyOnce: true,
+      }
+    );
+  } catch (error) {
+    console.log("Error: " + error);
+    res.status(500).send("Internal Server Error");
+  }
+});
 
-      fetch_data().then(() => {
-        if (!response_sent) {
-          switch (type) {
-            case "sat":
-              y.push(400, 1600);
-              break;
-            case "act":
-              y.push(0, 36);
-              break;
-            case "admission":
-              y.push(0, 100);
-              break;
-            case "graduation":
-              y.push(0, 100);
-              break;
-            case "debt":
-              y.push(0);
-              break;
-            case "tuition-in-state":
-              y.push(0);
-              break;
-            case "tuition-out-state":
-              y.push(0);
-              break;
-            case "earnings":
-              y.push(0);
-              break;
-            case "population":
-              y.push(0);
-              break;
-            default:
-              break;
-          }
-          res.status(200).json({
-            x: x,
-            y: y,
-          });
-          response_sent = true;
-        }
-      });
-    },
-    {
-      onlyOnce: true,
-    }
-  );
+app.use((req, res, next) => {
+  if (req.session.username) {
+    res.redirect("/home");
+  } else {
+    res.redirect("/");
+  }
 });
 
 const port = 3000;

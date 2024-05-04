@@ -25,6 +25,10 @@ save_button.onclick = () => {
       } else {
         message("College not found, please check your spelling");
       }
+    })
+    .catch((error) => {
+      console.log("Error:", error);
+      window.waiting_for_response = false;
     });
 };
 
@@ -51,5 +55,9 @@ remove_button.onclick = () => {
       } else {
         message("College is not saved to your list");
       }
+    })
+    .catch((error) => {
+      console.log("Error:", error);
+      window.waiting_for_response = false;
     });
 };

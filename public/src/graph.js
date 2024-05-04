@@ -83,7 +83,7 @@ function handleButtonClick(e) {
       break;
   }
 
-  fetch("http://localhost:3000/data", {
+  fetch("/data", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -95,6 +95,10 @@ function handleButtonClick(e) {
       window.waiting_for_response = false;
       graph.style.display = "block";
       draw(truncateStrings(data.x), data.y);
+    })
+    .catch((error) => {
+      console.log("Error:", error);
+      window.waiting_for_response = false;
     });
 }
 
