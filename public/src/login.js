@@ -5,7 +5,6 @@ const login_password = document.querySelector(".login-password");
 const signup_username = document.querySelector(".signup-username");
 const signup_password = document.querySelector(".signup-password");
 let accepting_responses = true;
-const url = "https://localhost:3000";
 
 login_button.onclick = () => {
   if (accepting_responses) {
@@ -18,7 +17,7 @@ login_button.onclick = () => {
     };
 
     console.log(login_data);
-    fetch(`${url}/login`, {
+    fetch(`/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(login_data),
@@ -51,7 +50,7 @@ signup_button.onclick = () => {
       password: password ? password : "",
     };
 
-    fetch(`${url}/signup`, {
+    fetch(`/signup`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(signup_data),
