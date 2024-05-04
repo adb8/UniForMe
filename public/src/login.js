@@ -5,21 +5,28 @@ const login_password = document.querySelector(".login-password");
 const signup_username = document.querySelector(".signup-username");
 const signup_password = document.querySelector(".signup-password");
 let accepting_responses = true;
+const url = "http://localhost:3000";
 
 login_button.onclick = () => {
   if (accepting_responses) {
     accepting_responses = false;
+    const username = login_username.value;
+    const password = login_password.value;
     const login_data = {
-      username: login_username.value,
-      password: login_password.value,
+      username: username ? username : "",
+      password: password ? password : "",
     };
 
-    fetch("/login", {
+    console.log(login_data);
+    fetch(`${url}/login`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(login_data),
     })
-      .then((response) => response.json())
+      .then((response) => {
+        console.log(response);
+        return response.json();
+      })
       .then((success) => {
         if (!success) {
           message("Login credentials are incorrect, please try again");
@@ -37,12 +44,14 @@ login_button.onclick = () => {
 signup_button.onclick = () => {
   if (accepting_responses) {
     accepting_responses = false;
+    const username = signup_username.value;
+    const password = signup_password.value;
     const signup_data = {
-      username: signup_username.value,
-      password: signup_password.value,
+      username: username ? username : "",
+      password: password ? password : "",
     };
 
-    fetch("/signup", {
+    fetch(`${url}/signup`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(signup_data),

@@ -2,6 +2,7 @@ const express = require("express");
 const session = require("express-session");
 const crypto = require("crypto");
 const firebase = require("./firebase.js");
+const path = require("path");
 require("dotenv").config();
 
 const app = express();
@@ -9,6 +10,9 @@ app.use(express.static("public"));
 app.use(express.json());
 const buffer = crypto.randomBytes(32);
 const secret_key = buffer.toString("hex");
+
+const bodyParser = require("body-parser");
+const urlencodedParser = bodyParser.urlencoded({ extended: false });
 
 app.use(
   session({
@@ -26,18 +30,20 @@ app.get("/", (req, res) => {
       }
     });
   }
-  res.sendFile(__dirname + "/templates/login.html");
+  const filePath = __dirname + "/../templates/login.html";
+  res.sendFile(path.resolve(filePath));
 });
 
 app.get("/home", (req, res) => {
   if (req.session.username != undefined) {
-    res.sendFile(__dirname + "/templates/home.html");
+    const filePath = __dirname + "/../templates/home.html";
+    res.sendFile(path.resolve(filePath));
   } else {
-    res.redirect("/");
+    res.redirect(path.resolve("/"));
   }
 });
 
-app.post("/signup", (req, res) => {
+app.post("/signup", async (req, res) => {
   let response_sent = false;
   const { username, password } = req.body;
   const user_path = "users/";
@@ -72,9 +78,13 @@ app.post("/signup", (req, res) => {
       onlyOnce: true,
     }
   );
+  if (!response_sent) {
+    res.status(200).json(false);
+    response_sent = true;
+  }
 });
 
-app.post("/login", (req, res) => {
+app.post("/login", async (req, res) => {
   let response_sent = false;
   const { username, password } = req.body;
   const user_path = "users/";
@@ -107,9 +117,13 @@ app.post("/login", (req, res) => {
       onlyOnce: true,
     }
   );
+  if (!response_sent) {
+    res.status(200).json(false);
+    response_sent = true;
+  }
 });
 
-app.post("/remove", (req, res) => {
+app.post("/remove", async (req, res) => {
   let response_sent = false;
   let { college_query } = req.body;
   const user_key = req.session.key;
@@ -143,9 +157,13 @@ app.post("/remove", (req, res) => {
       onlyOnce: true,
     }
   );
+  if (!response_sent) {
+    res.status(200).json(false);
+    response_sent = true;
+  }
 });
 
-app.post("/search", (req, res) => {
+app.post("/search", async (req, res) => {
   let response_sent = false;
   const { college_query } = req.body;
   const college_query_encoded = encodeURIComponent(college_query);
@@ -199,9 +217,13 @@ app.post("/search", (req, res) => {
         return;
       }
     });
+    if (!response_sent) {
+      res.status(200).json(false);
+      response_sent = true;
+    }
 });
 
-app.post("/data", (req, res) => {
+app.post("/data", async (req, res) => {
   let response_sent = false;
   const { type } = req.body;
   const user_key = req.session.key;
@@ -221,7 +243,7 @@ app.post("/data", (req, res) => {
       fetch_data = async () => {
         for (const db_college_name of x) {
           const db_college_name_encoded = encodeURIComponent(db_college_name);
-          const api_key = "pt9njTl5QPkpPjxHUaWacN6n48ZtmmibNyyJgTfg";
+          const api_key = process.env.SCORECARD_API_KEY;
           const api_url = `https://api.data.gov/ed/collegescorecard/v1/schools.json?api_key=${api_key}&school.name=${db_college_name_encoded}`;
           const response = await fetch(api_url);
           const data = await response.json();
@@ -355,9 +377,14 @@ app.post("/data", (req, res) => {
       onlyOnce: true,
     }
   );
+  if (!response_sent) {
+    res.status(200).json(false);
+    response_sent = true;
+  }
 });
 
 const port = 3000;
 app.listen(port, () => {
   console.log(`Server listening on port ${port}`);
 });
+module.exports = app;

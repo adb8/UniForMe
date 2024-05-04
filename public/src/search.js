@@ -1,6 +1,7 @@
 const input = document.querySelector(".college-search-input");
 const save_button = document.querySelector(".college-save-button");
 const remove_button = document.querySelector(".college-remove-button");
+const url = "http://localhost:3000"
 
 save_button.onclick = () => {
   if (window.waiting_for_response) {
@@ -9,7 +10,7 @@ save_button.onclick = () => {
   }
   window.waiting_for_response = true;
   const college_query = input.value.toLowerCase();
-  fetch("/search", {
+  fetch(`${url}/search`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -35,7 +36,7 @@ remove_button.onclick = () => {
   }
   window.waiting_for_response = true;
   const college_query = input.value.toLowerCase();
-  fetch("/remove", {
+  fetch(`${url}/remove`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
