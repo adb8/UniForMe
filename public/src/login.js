@@ -5,7 +5,7 @@ const login_password = document.querySelector(".login-password");
 const signup_username = document.querySelector(".signup-username");
 const signup_password = document.querySelector(".signup-password");
 let accepting_responses = true;
-const url = "http://localhost:3000";
+const url = "https://localhost:3000";
 
 login_button.onclick = () => {
   if (accepting_responses) {
